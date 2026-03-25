@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:loyalty_card_storage_app/features/cards/domain/models/loyalty_card.dart';
+import 'package:loyalty_card_storage_app/features/cards/presentation/utils/barcode_helper.dart';
 import 'package:uuid/uuid.dart';
 
 class AddCardScreen extends StatefulWidget {
@@ -16,7 +17,7 @@ class _AddCardScreenState extends State<AddCardScreen> {
   final _nameController = TextEditingController();
   final _numberController = TextEditingController();
   final _expiryController = TextEditingController(); // optional parsing for MVP
-  // Category / Notes would be added if the model supported them.
+  String _selectedBarcodeType = 'CODE_128';
 
   @override
   void dispose() {
@@ -161,8 +162,43 @@ class _AddCardScreenState extends State<AddCardScreen> {
                 const SizedBox(height: 16),
                 _buildInputField('Expiry Date', 'MM/YY', controller: _expiryController),
                 const SizedBox(height: 16),
-                _buildInputField('Category (Optional)', 'Shopping', suffixIcon: Icons.keyboard_arrow_down),
+                
+                // Barcode Format Dropdown
+                const Text(
+                  'Barcode Format',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.black87),
+                ),
+                const SizedBox(height: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE1E5ED).withOpacity(0.5),
+                    borderRadius: BorderRadius.circular(24),
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      value: _selectedBarcodeType,
+                      isExpanded: true,
+                      icon: const Icon(Icons.keyboard_arrow_down, color: Colors.black38),
+                      // Hardcoding the types since we haven't imported BarcodeHelper cleanly here yet or it's static
+                      items: [
+                        'CODE_128', 'QR_CODE', 'EAN_13', 'UPC_A', 'CODE_39', 'DATA_MATRIX'
+                      ]
+                          .map((type) => DropdownMenuItem(
+                                value: type,
+                                child: Text(type),
+                              ))
+                          .toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedBarcodeType = value!;
+                        });
+                      },
+                    ),
+                  ),
+                ),
                 const SizedBox(height: 16),
+
                  const Text(
                   'Notes',
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.black87),
@@ -202,7 +238,7 @@ class _AddCardScreenState extends State<AddCardScreen> {
                     name: cardName,
                     cardNumber: cardNum,
                     expiryDate: DateTime.now().add(const Duration(days: 365)), // mock future date
-                    barcodeType: 'CODE_128',
+                    barcodeType: _selectedBarcodeType,
                   );
                   widget.onSave!(newCard);
                 }

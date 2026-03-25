@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:barcode_widget/barcode_widget.dart';
 import 'package:loyalty_card_storage_app/features/cards/domain/models/loyalty_card.dart';
+import 'package:loyalty_card_storage_app/features/cards/presentation/utils/barcode_helper.dart';
 import 'package:loyalty_card_storage_app/features/core/presentation/widgets/custom_bottom_nav_bar.dart';
 import 'package:loyalty_card_storage_app/features/cards/presentation/screens/add_card_screen.dart';
 import 'package:loyalty_card_storage_app/features/alerts/presentation/screens/alerts_screen.dart';
 import 'package:loyalty_card_storage_app/features/cards/presentation/screens/card_detail_screen.dart';
+import 'package:loyalty_card_storage_app/features/settings/presentation/screens/settings_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -23,21 +25,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
       name: 'Starbucks',
       cardNumber: '1234567890123',
       expiryDate: DateTime(2026, 12),
-      barcodeType: 'CODE_128',
+      barcodeType: 'QR_CODE', // Now QR Code
     ),
     LoyaltyCard(
       id: '2',
       name: 'Costco',
       cardNumber: '9876543210987',
       expiryDate: DateTime.now().add(const Duration(days: 15)),
-      barcodeType: 'CODE_128',
+      barcodeType: 'CODE_128', // Standard
     ),
     LoyaltyCard(
       id: '3',
       name: 'Target',
       cardNumber: '4567890123456',
       expiryDate: DateTime(2025, 8),
-      barcodeType: 'CODE_128',
+      barcodeType: 'EAN_13', // EAN 13
     ),
   ];
 
@@ -67,7 +69,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             },
           ),
           const AlertsScreen(),
-          const Center(child: Text('Settings Coming Soon')),
+          const SettingsScreen(),
         ],
       ),
       bottomNavigationBar: CustomBottomNavBar(
@@ -278,7 +280,7 @@ class _LoyaltyCardItem extends StatelessWidget {
                 borderRadius: BorderRadius.circular(16),
               ),
               child: BarcodeWidget(
-                barcode: card.barcodeType == 'QR_CODE' ? Barcode.qrCode() : Barcode.code128(),
+                barcode: BarcodeHelper.getBarcodeFromType(card.barcodeType),
                 data: card.cardNumber,
                 drawText: false,
                 color: const Color(0xFF0F1419).withOpacity(0.8),
